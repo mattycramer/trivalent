@@ -31,20 +31,29 @@ Name:	%{chromium_name}
 }
 Release: 1
 Summary: A security-focused browser built upon Google's Chromium web browser
-Url: http://www.chromium.org/Home
+Url: https://github.com/secureblue/Trivalent
 License: BSD-3-Clause AND LGPL-2.1-or-later AND Apache-2.0 AND IJG AND MIT AND GPL-2.0-or-later AND ISC AND OpenSSL AND (MPL-1.1 OR GPL-2.0-only OR LGPL-2.0-only)
+# Replace the old package
+Obsoletes: hardened-chromium
 
 Source0: chromium-%{version}-clean.tar.xz
 Source2: %{chromium_name}.conf
 Source3: %{chromium_name}.sh
 Source4: %{chromium_name}.desktop
+Source8: %{chromium_name}.info
 Source9: %{chromium_name}.xml
+Source10: %{chromium_name}.appdata.xml
 Source11: master_preferences
 Source12: %{chromium_name}16.png
 Source13: %{chromium_name}22.png
 Source14: %{chromium_name}32.png
 Source15: %{chromium_name}44.png
 Source16: %{chromium_name}64.png
+
+Source17: %{chromium_name}24.png
+Source18: %{chromium_name}48.png
+Source19: %{chromium_name}128.png
+Source20: %{chromium_name}256.png
 
 ### Patches ###
 %{lua:
@@ -284,6 +293,8 @@ Qt6 UI for chromium.
 %autopatch -p1 -m 2000 -M %{_vanadiumPatchCount}
 %autopatch -p1 -m 3000 -M %{_hardeningPatchCount}
 
+cp -a %{SOURCE8} chrome/installer/linux/common/chromium-browser.info
+
 ### String Branding ###
 find . -type f \( -iname "*.grd" -o -iname "*.grdp" -o -iname "*.xtb" \) \
     ! -path "*ash_strings*" \
@@ -497,15 +508,15 @@ cp -a out/Release/gen/chrome/app/policy/common/html/en-US/*.html .
 cp -a out/Release/gen/chrome/app/policy/linux/examples/chrome.json .
 
 mkdir -p %{buildroot}%{_datadir}/icons/hicolor/256x256/apps
-cp -a chrome/app/theme/chromium/product_logo_256.png %{buildroot}%{_datadir}/icons/hicolor/256x256/apps/%{chromium_name}.png
+cp -a %{SOURCE20} %{buildroot}%{_datadir}/icons/hicolor/256x256/apps/%{chromium_name}.png
 mkdir -p %{buildroot}%{_datadir}/icons/hicolor/128x128/apps
-cp -a chrome/app/theme/chromium/product_logo_128.png %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/%{chromium_name}.png
+cp -a %{SOURCE19} %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/%{chromium_name}.png
 mkdir -p %{buildroot}%{_datadir}/icons/hicolor/64x64/apps
-cp -a chrome/app/theme/chromium/product_logo_64.png %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/%{chromium_name}.png
+cp -a %{SOURCE16} %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/%{chromium_name}.png
 mkdir -p %{buildroot}%{_datadir}/icons/hicolor/48x48/apps
-cp -a chrome/app/theme/chromium/product_logo_48.png %{buildroot}%{_datadir}/icons/hicolor/48x48/apps/%{chromium_name}.png
+cp -a %{SOURCE18} %{buildroot}%{_datadir}/icons/hicolor/48x48/apps/%{chromium_name}.png
 mkdir -p %{buildroot}%{_datadir}/icons/hicolor/24x24/apps
-cp -a chrome/app/theme/chromium/product_logo_24.png %{buildroot}%{_datadir}/icons/hicolor/24x24/apps/%{chromium_name}.png
+cp -a %{SOURCE17} %{buildroot}%{_datadir}/icons/hicolor/24x24/apps/%{chromium_name}.png
 
 # Install the master_preferences file
 install -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/%{chromium_name}/
@@ -513,8 +524,7 @@ install -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/%{chromium_name}/
 mkdir -p %{buildroot}%{_datadir}/applications/
 desktop-file-install --dir %{buildroot}%{_datadir}/applications %{SOURCE4}
 
-install -D -m0644 chrome/installer/linux/common/chromium-browser/chromium-browser.appdata.xml \
-  ${RPM_BUILD_ROOT}%{_datadir}/metainfo/%{chromium_name}.appdata.xml
+install -D -m0644 %{SOURCE10} ${RPM_BUILD_ROOT}%{_datadir}/metainfo/%{chromium_name}.appdata.xml
 appstream-util validate-relax --nonet ${RPM_BUILD_ROOT}%{_datadir}/metainfo/%{chromium_name}.appdata.xml
 
 mkdir -p %{buildroot}%{_datadir}/gnome-control-center/default-apps/
