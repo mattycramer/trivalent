@@ -82,4 +82,9 @@ exec < /dev/null
 exec > >(exec cat)
 exec 2> >(exec cat >&2)
 
-exec /usr/bin/bwrap --dev-bind / / --ro-bind /dev/null /etc/ld.so.preload "$HERE/$CHROMIUM_NAME" $CHROMIUM_FLAGS "$@"
+BWRAP_ARGS="--dev-bind / /"
+if [ -f "/etc/ld.so.preload" ]; then
+  BWRAP_ARGS+=" --ro-bind /dev/null /etc/ld.so.preload"
+fi
+
+exec /usr/bin/bwrap $BWRAP_ARGS "$HERE/$CHROMIUM_NAME" $CHROMIUM_FLAGS "$@"
