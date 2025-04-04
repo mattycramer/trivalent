@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Sanitize risky env variables
-export PATH="/usr/bin"
+export PATH="/usr/bin:/bin"
 export LD_PRELOAD=""
 export LD_LIBRARY_PATH=""
 export LD_AUDIT=""
