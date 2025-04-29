@@ -469,9 +469,6 @@ ln -s %{_bindir}/eu-strip buildtools/third_party/eu-strip/bin/eu-strip
 # Hard code extra version
 sed -i 's/getenv("CHROME_VERSION_EXTRA")/"%{chromium_name}"/' chrome/common/channel_info_posix.cc
 
-# bz#2265957, add correct platform
-sed -i "s/Linux x86_64/Linux %{_arch}/" content/common/user_agent.cc
-
 %build
 
 # reduce warnings
