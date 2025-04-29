@@ -1,60 +1,63 @@
-diff --git a/components/search_engines/search_engine_countries-inc.cc b/components/search_engines/search_engine_countries-inc.cc
-index 02ae0fe7ff..9183312a8e 100644
---- a/components/search_engines/search_engine_countries-inc.cc
-+++ b/components/search_engines/search_engine_countries-inc.cc
-@@ -38,6 +38,7 @@ struct EngineAndTier {
+diff --git a/third_party/search_engines_data/resources/definitions/regional_settings.json b/third_party/search_engines_data/resources/definitions/regional_settings.json
+index de88432..a41d407 100644
+--- a/third_party/search_engines_data/resources/definitions/regional_settings.json
++++ b/third_party/search_engines_data/resources/definitions/regional_settings.json
+@@ -151,6 +151,7 @@
+     "CA": {  // Canada
+       "search_engines": [
  
- // Default (for countries with no better engine set)
- constexpr EngineAndTier engines_default[] = {
-+    {SearchEngineTier::kTopEngines, &startpage},
-     {SearchEngineTier::kTopEngines, &google},
-     {SearchEngineTier::kTopEngines, &bing},
-     {SearchEngineTier::kTopEngines, &yahoo},
-@@ -192,6 +193,7 @@ constexpr EngineAndTier engines_BZ[] = {
++          "&startpage",
+           "&google",
+           "&bing",
+           "&yahoo_ca",
+@@ -249,6 +250,7 @@
+     "DE": {  // Germany
+       "search_engines": [
  
- // Canada
- constexpr EngineAndTier engines_CA[] = {
-+    {SearchEngineTier::kTopEngines, &startpage},
-     {SearchEngineTier::kTopEngines, &google},
-     {SearchEngineTier::kTopEngines, &bing},
-     {SearchEngineTier::kTopEngines, &yahoo_ca},
-@@ -270,6 +272,7 @@ constexpr EngineAndTier engines_CZ[] = {
++          "&startpage",
+           "&google",
+           "&duckduckgo",
+           "&ecosia",
+@@ -257,9 +259,7 @@
+ ,
  
- // Germany
- constexpr EngineAndTier engines_DE[] = {
-+  {SearchEngineTier::kTopEngines, &startpage},
-   {SearchEngineTier::kTopEngines, &google},
-   {SearchEngineTier::kTopEngines, &duckduckgo},
-   {SearchEngineTier::kTopEngines, &ecosia},
-@@ -277,7 +280,6 @@ constexpr EngineAndTier engines_DE[] = {
-   {SearchEngineTier::kTopEngines, &bing},
-   {SearchEngineTier::kRemainingEngines, &yahoo_de},
-   {SearchEngineTier::kRemainingEngines, &qwant},
--  {SearchEngineTier::kRemainingEngines, &startpage},
- };
+           "&yahoo_de",
+-          "&qwant",
+-          "&startpage"
+-
++          "&qwant"
+       ]
+     },
+     "DK": {  // Denmark
+@@ -400,6 +400,7 @@
+     "GB": {  // United Kingdom
+       "search_engines": [
  
- // Denmark
-@@ -387,6 +389,7 @@ constexpr EngineAndTier engines_FR[] = {
++          "&startpage",
+           "&google",
+           "&bing",
+           "&yahoo_uk",
+@@ -862,6 +863,7 @@
+     "NL": {  // Netherlands
+       "search_engines": [
  
- // United Kingdom
- constexpr EngineAndTier engines_GB[] = {
-+    {SearchEngineTier::kTopEngines, &startpage},
-     {SearchEngineTier::kTopEngines, &google},
-     {SearchEngineTier::kTopEngines, &bing},
-     {SearchEngineTier::kTopEngines, &yahoo_uk},
-@@ -753,6 +756,7 @@ constexpr EngineAndTier engines_NI[] = {
++          "&startpage",
+           "&google",
+           "&duckduckgo",
+           "&brave",
+@@ -1243,6 +1245,7 @@
+     "US": {  // United States
+       "search_engines": [
  
- // Netherlands
- constexpr EngineAndTier engines_NL[] = {
-+  {SearchEngineTier::kTopEngines, &startpage},
-   {SearchEngineTier::kTopEngines, &google},
-   {SearchEngineTier::kTopEngines, &duckduckgo},
-   {SearchEngineTier::kTopEngines, &brave},
-@@ -1056,6 +1060,7 @@ constexpr EngineAndTier engines_UA[] = {
- 
- // United States
- constexpr EngineAndTier engines_US[] = {
-+    {SearchEngineTier::kTopEngines, &startpage},
-     {SearchEngineTier::kTopEngines, &google},
-     {SearchEngineTier::kTopEngines, &bing},
-     {SearchEngineTier::kTopEngines, &yahoo},
++          "&startpage",
+           "&google",
+           "&bing",
+           "&yahoo",
+@@ -1323,6 +1326,7 @@
+     // See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#ZZ
+     "ZZ": {  // Default
+       "search_engines": [
++          "&startpage",
+           "&google",
+           "&bing",
+           "&yahoo"
