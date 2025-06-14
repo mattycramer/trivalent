@@ -12,14 +12,12 @@ index 9b5b2834eb..40e7c7b6fa 100644
  #include "chrome/browser/ui/views/tabs/tab_strip.h"
  
  #include <stddef.h>
-@@ -2186,7 +2189,11 @@ void TabStrip::NewTabButtonPressed(const ui::Event& event) {
+@@ -2186,7 +2189,9 @@ void TabStrip::NewTabButtonPressed(const ui::Event& event) {
      const ui::MouseEvent& mouse = static_cast<const ui::MouseEvent&>(event);
      if (mouse.IsOnlyMiddleMouseButton()) {
        if (ui::Clipboard::IsSupportedClipboardBuffer(
 -              ui::ClipboardBuffer::kSelection)) {
 +              ui::ClipboardBuffer::kSelection) &&
-+          !base::FeatureList::IsEnabled(
-+                              blink::features::kMiddleClickAutoscroll) &&
 +          base::FeatureList::IsEnabled(
 +                             views::features::kMiddleClickCopyPaste)) {
          ui::Clipboard* clipboard = ui::Clipboard::GetForCurrentThread();
@@ -40,14 +38,12 @@ index dcc4d40592932..f9a9b002bd956 100644
  #include "base/memory/raw_ptr.h"
  #include "base/time/time.h"
  #include "base/timer/timer.h"
-@@ -61,7 +65,10 @@ class VIEWS_EXPORT SelectionController {
+@@ -61,7 +65,8 @@ class VIEWS_EXPORT SelectionController {
    // Sets whether the SelectionController should update or paste the
    // selection clipboard on middle-click. Default is false.
    void set_handles_selection_clipboard(bool value) {
 -    handles_selection_clipboard_ = value;
 +    handles_selection_clipboard_ = value &&
-+          !base::FeatureList::IsEnabled(
-+                              blink::features::kMiddleClickAutoscroll) &&
 +          base::FeatureList::IsEnabled(features::kMiddleClickCopyPaste);
    }
  
