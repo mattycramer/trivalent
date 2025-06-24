@@ -2,7 +2,7 @@ diff --git a/chrome/browser/extensions/api/settings_private/prefs_util.cc b/chro
 index 8db06cee98..d1c96333e9 100644
 --- a/chrome/browser/extensions/api/settings_private/prefs_util.cc
 +++ b/chrome/browser/extensions/api/settings_private/prefs_util.cc
-@@ -180,6 +180,24 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
+@@ -180,6 +180,22 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
    }
    s_allowlist = new PrefsUtil::TypedPrefMap();
  
@@ -18,8 +18,6 @@ index 8db06cee98..d1c96333e9 100644
 +  (*s_allowlist)[::prefs::kDisableExtensions] =
 +      settings_api::PrefType::kBoolean;
 +  (*s_allowlist)[::prefs::kNetworkServiceSandboxEnabled] =
-+      settings_api::PrefType::kBoolean;
-+  (*s_allowlist)[::prefs::kManagedPrivateNetworkAccessRestrictionsEnabled] =
 +      settings_api::PrefType::kBoolean;
 +  (*s_allowlist)[::prefs::kIncognitoLaunch] =
 +      settings_api::PrefType::kBoolean;
@@ -58,7 +56,7 @@ index d5079082c7..d75f6a430f 100644
        .bullet-line {
          align-items: center;
          display: flex;
-@@ -385,6 +389,46 @@
+@@ -385,6 +389,41 @@
            on-click="onChromeCertificatesClick_">
        </cr-link-row>
  </if>
@@ -68,11 +66,6 @@ index d5079082c7..d75f6a430f 100644
 +        pref="{{prefs.incognito.launch_mode}}"
 +        label="Incognito Launch"
 +        sub-label="Opens new sessions and external links in Incognito tabs">
-+      </settings-toggle-button>
-+      <settings-toggle-button class="cr-row"
-+        pref="{{prefs.managed_private_network_access_restrictions_enabled}}"
-+        label="Private Network Access Restrictions"
-+        sub-label="Prevents websites from freely accessing private (LAN) addresses">
 +      </settings-toggle-button>
 +      <settings-toggle-button class="cr-row"
 +        pref="{{prefs.disable_3d_apis}}"
