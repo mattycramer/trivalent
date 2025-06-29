@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 # Sanitize & protect risky variables
-declare -rx LD_PRELOAD=""
 declare -rx LD_LIBRARY_PATH=""
 declare -rx LD_AUDIT=""
 declare -rx LD_PROFILE=""
@@ -69,8 +68,8 @@ else
   echo "A process is already open in this directory or Singleton process files are not present."
 fi
 
-BWRAP_ARGS="--dev-bind / /"
-[[ -f "/etc/ld.so.preload" ]] && BWRAP_ARGS+=" --ro-bind /dev/null /etc/ld.so.preload"
+# Do this at the end so that everything else still gets hardened_malloc
+declare -rx LD_PRELOAD=""
 
 # Sanitize std{in,out,err} because they'll be shared with untrusted child
 # processes (http://crbug.com/376567).
@@ -78,5 +77,11 @@ exec < /dev/null
 exec > >(exec cat)
 exec 2> >(exec cat >&2)
 
-# shellcheck disable=SC2086
-exec bwrap $BWRAP_ARGS "$HERE/$CHROMIUM_NAME" $CHROMIUM_FLAGS "$@"
+# If ld.so.preload is readable, it may be used to preload into the browser which we don't want
+if [[ -r "/etc/ld.so.preload" ]]; then
+  # shellcheck disable=SC2086
+  exec bwrap --dev-bind / / --ro-bind-try /dev/null /etc/ld.so.preload "$HERE/$CHROMIUM_NAME" $CHROMIUM_FLAGS "$@"
+else
+  # shellcheck disable=SC2086
+  exec -a "$0" "$HERE/$CHROMIUM_NAME" $CHROMIUM_FLAGS "$@"
+fi
