@@ -8,7 +8,7 @@ index 703fc03b7e6cc..0623c0ed9ffab 100644
  
 +// Hides the toolbar profile icon in regular profiles
 +BASE_FEATURE(kHideProfileIcon, "HideProfileIcon",
-+             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
 +
  // Enables the tab dragging fallback when full window dragging is not supported
  // by the platform (e.g. Wayland). See https://crbug.com/896640
