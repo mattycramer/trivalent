@@ -34,7 +34,7 @@ index 63b6e1583a837..a0b8b8c588161 100644
    // on a per-component basis.
    std::u16string out16;
 diff --git a/url/url_features.cc b/url/url_features.cc
-index 89884ac867..ff2f72cf7c 100644
+index 4ce9fd4c0b..cd5e72de29 100644
 --- a/url/url_features.cc
 +++ b/url/url_features.cc
 @@ -7,6 +7,10 @@
@@ -45,11 +45,11 @@ index 89884ac867..ff2f72cf7c 100644
 +             "ShowPunycodeDomains",
 +             base::FEATURE_DISABLED_BY_DEFAULT);
 +
- // Kill switch for crbug.com/1416006.
- BASE_FEATURE(kStandardCompliantNonSpecialSchemeURLParsing,
-              "StandardCompliantNonSpecialSchemeURLParsing",
+ BASE_FEATURE(kDisallowSpaceCharacterInURLHostParsing,
+              "DisallowSpaceCharacterInURLHostParsing",
+              base::FEATURE_DISABLED_BY_DEFAULT);
 diff --git a/url/url_features.h b/url/url_features.h
-index fa4493a12e9c1..70c5d811122fe 100644
+index 61a665aa0a..586462e007 100644
 --- a/url/url_features.h
 +++ b/url/url_features.h
 @@ -10,6 +10,10 @@
@@ -61,5 +61,5 @@ index fa4493a12e9c1..70c5d811122fe 100644
 +BASE_DECLARE_FEATURE(kShowPunycodeDomains);
 +
  // If you add or remove a feature related to URLs, you may need to
- // correspondingly update the EarlyAccess allow list in app shims
+ // correspondingly update the EarlyAccess allow list in app shims/
  // (chrome/app_shim/app_shim_controller.mm). See https://crbug.com/1520386 for

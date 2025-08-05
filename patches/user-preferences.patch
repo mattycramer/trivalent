@@ -54,7 +54,7 @@ index 0d6ab878ac33d..0f114a5f32cb5 100644
              class="hr"
              hidden="[[!showHr_(
 diff --git a/chrome/browser/resources/settings/privacy_page/security_page.html b/chrome/browser/resources/settings/privacy_page/security_page.html
-index 1f5aff963f2a4..b7a1a5ea17f76 100644
+index ae93043d94..d015b734d6 100644
 --- a/chrome/browser/resources/settings/privacy_page/security_page.html
 +++ b/chrome/browser/resources/settings/privacy_page/security_page.html
 @@ -4,6 +4,10 @@
@@ -68,10 +68,11 @@ index 1f5aff963f2a4..b7a1a5ea17f76 100644
        .bullet-line {
          align-items: center;
          display: flex;
-@@ -298,6 +302,41 @@
-         sub-label="$i18n{manageCertificatesDescription}"
-         on-click="onManageCertificatesClick_" external>
-     </cr-link-row>
+@@ -304,3 +308,39 @@
+           on-close="onDisableSafebrowsingDialogClose_">
+       </settings-simple-confirmation-dialog>
+     </template>
++
 +    <div id="hardeningSection">
 +      <div class="cr-row first"><h2 class="cr-title-text">Hardening</h2></div>
 +      <settings-toggle-button class="cr-row first"
@@ -107,9 +108,6 @@ index 1f5aff963f2a4..b7a1a5ea17f76 100644
 +        sub-label="Changes to this setting requires a restart">
 +      </settings-toggle-button>
 +    </div>
- 
-     <cr-link-row id="advanced-protection-program-link" class="hr"
-         label="$i18n{advancedProtectionProgramTitle}"
 diff --git a/chrome/browser/resources/settings/privacy_page/security_page.ts b/chrome/browser/resources/settings/privacy_page/security_page.ts
 index 4e79876ab6845..536522e66a99c 100644
 --- a/chrome/browser/resources/settings/privacy_page/security_page.ts
