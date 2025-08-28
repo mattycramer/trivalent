@@ -419,6 +419,12 @@ rm -rf buildtools/third_party/eu-strip/bin/eu-strip
 # Replace it with a symlink to the Fedora copy
 ln -s %{_bindir}/eu-strip buildtools/third_party/eu-strip/bin/eu-strip
 
+# Use system nodejs if desired
+%if %{use_system_toolchain}
+mkdir -p third_party/node/linux/node-linux-x64/bin
+ln -s $(which node) third_party/node/linux/node-linux-x64/bin/node
+%end
+
 # Hard code extra version
 sed -i 's/getenv("CHROME_VERSION_EXTRA")/"%{chromium_name}"/' chrome/common/channel_info_posix.cc
 
