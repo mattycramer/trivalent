@@ -199,7 +199,7 @@ new file mode 100644
 +    Trivalent comes preloaded with EasyList, EasyPrivacy, Fanboy Annoyance, and a wide set of
 +    regional filter lists covering Europe, Asia, the Middle East, and more. It also includes
 +    Anti-Adblock Filters to bypass detection. You can see the full list here:
-+    <a href="https://github.com/secureblue/trivalent-subresource-filter/blob/live/copr_script.sh">Trivalent filter sources</a>.
++    <a href="https://github.com/secureblue/trivalent-subresource-filter">Trivalent filter sources</a>.
 +    Since these filters are precompiled at build time, if you want to add a new filter, please open an issue or submit a pull
 +    request in the same repository.
 +  </details>

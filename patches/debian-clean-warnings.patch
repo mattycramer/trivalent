@@ -1,0 +1,270 @@
+Copyright 2024-2025 The Trivalent Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+---
+--- a/components/signin/internal/identity_manager/account_tracker_service.cc
++++ b/components/signin/internal/identity_manager/account_tracker_service.cc
+@@ -105,7 +105,7 @@
+   }
+ }
+ 
+-std::string AccountsToString(
++[[maybe_unused]] std::string AccountsToString(
+     const std::map<CoreAccountId, AccountInfo>& accounts) {
+   std::stringstream result;
+   result << "[";
+--- a/components/signin/internal/identity_manager/primary_account_manager.cc
++++ b/components/signin/internal/identity_manager/primary_account_manager.cc
+@@ -42,7 +42,7 @@
+ // web sign in or by an unknown source.
+ // Note: This value is currently not
+ // expected to be used and is logged for potential usages in the future.
+-const char kExplicitBrowserSigninWithoutFeatureEnabled[] =
++[[maybe_unused]] const char kExplicitBrowserSigninWithoutFeatureEnabled[] =
+     "signin.explicit_browser_signin";
+ 
+ enum class InitializePrefState {
+@@ -100,7 +100,7 @@
+   }
+ }
+ 
+-void LogPrimaryAccountPrefsOnInitialize(const std::string& pref_account_id,
++[[maybe_unused]] void LogPrimaryAccountPrefsOnInitialize(const std::string& pref_account_id,
+                                         bool pref_consented_to_sync) {
+   if (pref_account_id.empty()) {
+     base::UmaHistogramEnumeration(
+--- a/components/signin/public/identity_manager/identity_utils.cc
++++ b/components/signin/public/identity_manager/identity_utils.cc
+@@ -25,7 +25,7 @@
+ 
+ namespace {
+ 
+-bool IsUsernameAllowedByPattern(std::string_view username,
++[[maybe_unused]] bool IsUsernameAllowedByPattern(std::string_view username,
+                                 std::string_view pattern) {
+   if (pattern.empty()) {
+     return true;
+--- a/components/gcm_driver/gcm_client_impl.cc
++++ b/components/gcm_driver/gcm_client_impl.cc
+@@ -38,6 +38,7 @@
+ #include "google_apis/gcm/engine/gcm_unregistration_request_handler.h"
+ #include "google_apis/gcm/engine/instance_id_delete_token_request_handler.h"
+ #include "google_apis/gcm/engine/instance_id_get_token_request_handler.h"
++#include "build/build_config.h"
+ #include "google_apis/gcm/monitoring/gcm_stats_recorder.h"
+ #include "google_apis/gcm/protocol/checkin.pb.h"
+ #include "google_apis/gcm/protocol/mcs.pb.h"
+@@ -79,7 +80,7 @@
+ const char kMessageTypeKey[] = "message_type";
+ const char kMessageTypeSendErrorKey[] = "send_error";
+ const char kSubtypeKey[] = "subtype";
+-const char kSendMessageFromValue[] = "gcm@ch40me.qjz9zk";
++[[maybe_unused]] const char kSendMessageFromValue[] = "gcm@ch40me.qjz9zk";
+ const int64_t kDefaultUserSerialNumber = 0LL;
+ const int kDestroyGCMStoreDelayMS = 5 * 60 * 1000;  // 5 minutes.
+ 
+@@ -101,7 +102,7 @@
+   return GCMClientImpl::UNKNOWN_ERROR;
+ }
+ 
+-void ToCheckinProtoVersion(
++[[maybe_unused]] void ToCheckinProtoVersion(
+     const GCMClient::ChromeBuildInfo& chrome_build_info,
+     checkin_proto::ChromeBuildProto* android_build_info) {
+   checkin_proto::ChromeBuildProto_Platform platform =
+@@ -399,7 +400,9 @@
+ 
+ void GCMClientImpl::InitializeMCSClient() {
+   DCHECK(network_connection_tracker_);
++#if BUILDFLAG(IS_LINUX)
+   return;
++#else
+   std::vector<GURL> endpoints;
+   endpoints.push_back(gservices_settings_.GetMCSMainEndpoint());
+   GURL fallback_endpoint = gservices_settings_.GetMCSFallbackEndpoint();
+@@ -421,6 +424,7 @@
+       base::BindRepeating(&GCMClientImpl::OnMessageSentToMCS,
+                           weak_ptr_factory_.GetWeakPtr()),
+       std::move(load_result_));
++#endif  // BUILDFLAG(IS_LINUX)
+ }
+ 
+ void GCMClientImpl::OnFirstTimeDeviceCheckinCompleted(
+--- a/components/domain_reliability/uploader.cc
++++ b/components/domain_reliability/uploader.cc
+@@ -80,7 +80,7 @@
+     if (discard_uploads_)
+       discarded_upload_count_++;
+ 
+-    if (true) {
++    if (discard_uploads_) {
+       DVLOG(1) << "Discarding report instead of uploading.";
+       UploadResult result;
+       result.status = UploadResult::SUCCESS;
+--- a/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc
++++ b/sandbox/policy/linux/sandbox_seccomp_bpf_linux.cc
+@@ -97,7 +97,7 @@
+ // nacl_helper needs to be tiny and includes only part of content/
+ // in its dependencies. Make sure to not link things that are not needed.
+ #if !defined(IN_NACL_HELPER)
+-inline bool IsChromeOS() {
++[[maybe_unused]] inline bool IsChromeOS() {
+ #if BUILDFLAG(IS_CHROMEOS)
+   return true;
+ #else
+@@ -105,7 +105,7 @@
+ #endif
+ }
+ 
+-inline bool UseChromecastSandboxAllowlist() {
++[[maybe_unused]] inline bool UseChromecastSandboxAllowlist() {
+ #if BUILDFLAG(ENABLE_CHROMECAST_GPU_SANDBOX_ALLOWLIST)
+   return true;
+ #else
+--- a/components/search_engines/template_url_service.cc
++++ b/components/search_engines/template_url_service.cc
+@@ -588,9 +588,9 @@
+     std::unique_ptr<TemplateURLServiceClient> client,
+     const base::RepeatingClosure& dsp_change_callback)
+     : prefs_(prefs),
+-      should_autocollect_(true),
+       search_engine_choice_service_(search_engine_choice_service),
+       prepopulate_data_resolver_(prepopulate_data_resolver),
++      should_autocollect_(true),
+       search_terms_data_(std::move(search_terms_data)),
+       web_data_service_(web_data_service),
+       client_(std::move(client)),
+--- a/components/assist_ranker/ranker_url_fetcher.cc
++++ b/components/assist_ranker/ranker_url_fetcher.cc
+@@ -16,6 +16,7 @@
+ #include "services/network/public/cpp/resource_request.h"
+ #include "services/network/public/cpp/simple_url_loader.h"
+ #include "services/network/public/mojom/url_loader_factory.mojom.h"
++#include "build/build_config.h"
+ 
+ namespace assist_ranker {
+ 
+@@ -35,7 +36,9 @@
+     const GURL& url,
+     RankerURLFetcher::Callback callback,
+     network::mojom::URLLoaderFactory* url_loader_factory) {
++#if BUILDFLAG(IS_LINUX)
+   return false;
++#else
+   // This function is not supposed to be called if the previous operation is not
+   // finished.
+   if (state_ == REQUESTING) {
+@@ -94,6 +97,7 @@
+                      base::Unretained(this)));
+ 
+   return true;
++#endif  // BUILDFLAG(IS_LINUX)
+ }
+ 
+ void RankerURLFetcher::OnSimpleLoaderComplete(
+--- a/components/safe_browsing/core/browser/safe_browsing_metrics_collector.cc
++++ b/components/safe_browsing/core/browser/safe_browsing_metrics_collector.cc
+@@ -24,12 +24,12 @@
+ const int kMetricsLoggingIntervalDay = 1;
+ 
+ // The max length of event timestamps stored in pref.
+-const int kTimestampsMaxLength = 30;
++[[maybe_unused]] const int kTimestampsMaxLength = 30;
+ // The quota for ESB disabled metrics. ESB disabled metrics should not be logged
+ // more than the quota in a week.
+ const int kEsbDisabledMetricsQuota = 3;
+ // Events that are older than 30 days are removed from pref.
+-const int kEventMaxDurationDay = 30;
++[[maybe_unused]] const int kEventMaxDurationDay = 30;
+ // The ESB enabled duration is considered short if it's under 1 hour, long if
+ // it's at least 24 hours, and medium if it's in between.
+ const int kEsbShortEnabledUpperBoundHours = 1;
+@@ -39,11 +39,11 @@
+   return base::NumberToString(static_cast<int>(type));
+ }
+ 
+-std::string UserStateToPrefKey(const UserState& user_state) {
++[[maybe_unused]] std::string UserStateToPrefKey(const UserState& user_state) {
+   return base::NumberToString(static_cast<int>(user_state));
+ }
+ 
+-base::Value TimeToPrefValue(const base::Time& time) {
++[[maybe_unused]] base::Value TimeToPrefValue(const base::Time& time) {
+   return base::Int64ToValue(time.ToDeltaSinceWindowsEpoch().InSeconds());
+ }
+ 
+--- a/components/signin/core/browser/signin_metrics_service.cc
++++ b/components/signin/core/browser/signin_metrics_service.cc
+@@ -495,7 +495,7 @@
+ void SigninMetricsService::MaybeRecordMetricsForSigninPromoLimitsExperiment(
+     const CoreAccountInfo& account_info,
+     signin_metrics::AccessPoint access_point) {
+-  bool is_from_web_signin =
++  [[maybe_unused]] bool is_from_web_signin =
+       GetTimeOfWebSignin(account_info.account_id).has_value();
+   switch (access_point) {
+     case signin_metrics::AccessPoint::kAddressBubble:
+--- a/ui/accessibility/platform/inspect/ax_inspect_utils_auralinux.cc
++++ b/ui/accessibility/platform/inspect/ax_inspect_utils_auralinux.cc
+@@ -41,6 +41,9 @@
+ #define QUOTE(X) \
+   { X, #X }
+ 
++#ifdef ATSPI_CHECK_VERSION
++#undef ATSPI_CHECK_VERSION
++#endif
+ #define ATSPI_CHECK_VERSION(major, minor, micro)                           \
+   (major) < ATSPI_MAJOR_VERSION ||                                         \
+       ((major) == ATSPI_MAJOR_VERSION && (minor) < ATSPI_MINOR_VERSION) || \
+--- a/components/translate/core/browser/translate_ranker_impl.cc
++++ b/components/translate/core/browser/translate_ranker_impl.cc
+@@ -227,8 +227,9 @@
+   // (or become False).
+   const bool kDefaultResponse = true;
+ 
++#if BUILDFLAG(IS_LINUX)
+   return kDefaultResponse;
+-
++#else
+   translate_event->set_ranker_request_timestamp_sec(
+       (base::TimeTicks::Now() - base::TimeTicks()).InSeconds());
+   translate_event->set_ranker_version(GetModelVersion());
+@@ -266,6 +267,7 @@
+   }
+ 
+   return result;
++#endif  // BUILDFLAG(IS_LINUX)
+ }
+ 
+ bool TranslateRankerImpl::GetModelDecision(
+--- a/content/browser/attribution_reporting/attribution_suitable_context.cc
++++ b/content/browser/attribution_reporting/attribution_suitable_context.cc
+@@ -34,7 +34,7 @@
+ 
+ using attribution_reporting::SuitableOrigin;
+ 
+-bool UkmSourceIdAllowed(RenderFrameHostImpl* rfh) {
++[[maybe_unused]] bool UkmSourceIdAllowed(RenderFrameHostImpl* rfh) {
+   return rfh->GetLifecycleState() !=
+          RenderFrameHost::LifecycleState::kPrerendering;
+ }
+--- a/content/browser/file_system_access/file_system_access_safe_move_helper.h
++++ b/content/browser/file_system_access/file_system_access_safe_move_helper.h
+@@ -93,7 +93,8 @@
+   download::QuarantineConnectionCallback quarantine_connection_callback_
+       GUARDED_BY_CONTEXT(sequence_checker_);
+ 
+-  bool has_transient_user_activation_ GUARDED_BY_CONTEXT(sequence_checker_) =
++  [[maybe_unused]] bool has_transient_user_activation_
++      GUARDED_BY_CONTEXT(sequence_checker_) =
+       false;
+ 
+   FileSystemAccessSafeMoveHelperCallback callback_

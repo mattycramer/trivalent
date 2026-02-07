@@ -1,213 +1,277 @@
-# Copyright 2025 The Trivalent Authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software distributed under the License is
-# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and limitations under the License.
+name: build-debian
 
 on:
-  workflow_call:
-    inputs:
-      arch:
-        required: true
-        type: string
-      test_build:
-        required: false
-        type: boolean
-        default: false
-    secrets:
-      RPM_SIGNING_KEY:
-        required: false
-      R2_ACCESS_KEY_ID:
-        required: false
-      R2_SECRET_ACCESS_KEY:
-        required: false
-      R2_ENDPOINT:
-        required: false
-  
-name: Create RPM Release
+  push:
+    tags:
+      - "gl-trivalent-v*"
+  workflow_dispatch:
 
-permissions: {} 
+permissions:
+  contents: read
+  actions: write
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  buildsrpm:
-    name: Build SRPM
-    if: github.triggering_actor == 'royaloughtness'
-    runs-on: ${{ inputs.arch == 'x86_64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
-    container: 
-      image: ${{ inputs.arch == 'x86_64' && 'fedora:43@sha256:b8f499bee9c97c7c1be0ff7b8b6e4ab72af4216c30d2365c9d474ce2d5c5fd9a' || 'fedora:43@sha256:b5bf856429ce79986e9d80bf58766f6d5b7fad6dab717314539cb7cd0e280f45' }}
-    steps:
-      - name: Enable egress auditing
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
-        with:
-          egress-policy: audit
-
-      - name: Build SRPM 
-        shell: bash
-        id: srpm_build
-        run: |
-          dnf copr enable secureblue/trivalent -y
-          dnf update -y
-          dnf install git wget rpmbuild yum-utils rpm-sign trivalent-chromium-clean-source -y
-          SOURCE_CACHE_HASH=$(sha256sum /usr/src/chromium/chromium-*.xz)
-          echo "SOURCE_CACHE_HASH: ${SOURCE_CACHE_HASH}"
-          git clone https://github.com/secureblue/Trivalent.git
-          bash ./Trivalent/copr_script.sh
-          rpmbuild -bs -v --define "_sourcedir $PWD" --define "_rpmdir $PWD" --define "_builddir $PWD" --define "_specdir $PWD" --define "_srcrpmdir $PWD" trivalent.spec
-          SRPM_HASH=$(sha256sum *.rpm)
-          echo "SRPM_HASH: ${SRPM_HASH}"
-          
-      - name: Save SRPM
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: srpm-artifact
-          path: "*.rpm"
-          compression-level: 0 
-          retention-days: 30
-
-  buildrpm:
-    name: Build RPM
-    if: github.triggering_actor == 'royaloughtness'
-    timeout-minutes: 180
-    needs: buildsrpm
-    runs-on: ${{ inputs.arch == 'x86_64' && 'runs-on=${{ github.run_id }}/runner=x86_64-runner' || 'runs-on=${{ github.run_id }}/runner=arm64-runner' }}
-    container: 
-      image: ${{ inputs.arch == 'x86_64' && 'fedora:43@sha256:b8f499bee9c97c7c1be0ff7b8b6e4ab72af4216c30d2365c9d474ce2d5c5fd9a' || 'fedora:43@sha256:b5bf856429ce79986e9d80bf58766f6d5b7fad6dab717314539cb7cd0e280f45' }}
-      options: --privileged
-    steps:
-      - name: Enable egress auditing
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
-        with:
-          egress-policy: audit
-
-      - name: Retrieve SRPM
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: srpm-artifact
-          
-      - name: Build RPM 
-        shell: bash
-        id: rpm_build
-        env:
-          ARCH: ${{inputs.arch}}
-        run: |
-          dnf update -y
-          dnf install rpm-build mock -y
-          SRPM_HASH=$(sha256sum *.rpm)
-          echo "SRPM_HASH: ${SRPM_HASH}"
-          mock --resultdir=. -r "fedora-43-${ARCH}" --rebuild trivalent-*.src.rpm
-            
-      - name: Surface build log
-        if: always()
-        run: |
-          cat build.log || echo "build.log not found"
-
-      - name: Upload log artifacts
-        if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: build-logs
-          path: "*.log"
-          retention-days: 30
-
-      - name: Prepare for upload
-        shell: bash
-        run: |
-          rm trivalent-*.src.rpm
-
-      - name: Save RPM
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: rpm-artifact
-          path: "*.rpm"
-          compression-level: 0 
-          retention-days: 7
-
-  pushrpm:
-    name: Push RPM
-    if: github.triggering_actor == 'royaloughtness'
-    environment: ${{ inputs.test_build && 'TestBuild' || 'Build' }}
-    runs-on: ${{ inputs.arch == 'x86_64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
-    container: 
-      image: ${{ inputs.arch == 'x86_64' && 'fedora:43@sha256:b8f499bee9c97c7c1be0ff7b8b6e4ab72af4216c30d2365c9d474ce2d5c5fd9a' || 'fedora:43@sha256:b5bf856429ce79986e9d80bf58766f6d5b7fad6dab717314539cb7cd0e280f45' }}
-    needs: buildrpm
+  setup:
+    name: Setup
+    runs-on: ubuntu-24.04
     outputs:
-      hashes: ${{ steps.sign.outputs.hashes }}
+      package_version: ${{ steps.version.outputs.package_version }}
+      ugc_tag: ${{ steps.ugc.outputs.ugc_tag }}
     steps:
-      - name: Enable egress auditing
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          egress-policy: audit
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Retrieve RPM
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+      - name: Checkout shared actions
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          name: rpm-artifact
+          repository: ${{ vars.GH_ACTIONS_SHARED_PROJ }}
+          ref: ${{ vars.GH_ACTIONS_SHARED_REF }}
+          path: .github/actions/gh-actions
+          fetch-depth: 1
+          persist-credentials: false
 
-      - name: Setup
-        shell: bash
-        env:
-          RPM_SIGNING_KEY: ${{ secrets.RPM_SIGNING_KEY }}
-        run: |
-          dnf install reposync rpm-sign createrepo rclone -y
-          curl -o /etc/yum.repos.d/secureblue.repo https://repo.secureblue.dev/secureblue.repo
-          dnf update --refresh -y
-          echo "${RPM_SIGNING_KEY}" | gpg --import
-          echo "
-          %_signature gpg
-          %_gpg_name 26B4463ED8F313BC7E3FBDF9D9223AF0F47B3E41
-          " > ~/.rpmmacros
+      - name: Require gl-* tag
+        if: startsWith(github.ref, 'refs/tags/gl-')
+        uses: ./.github/actions/gh-actions/actions/require-gl-tag
+        with:
+          tag_prefix: gl-
 
-      - name: Sign
-        shell: bash
-        if: ${{ ! inputs.test_build }}
-        id: sign
+      - name: Ensure tag is on mcr/release
+        if: startsWith(github.ref, 'refs/tags/gl-')
+        uses: ./.github/actions/gh-actions/actions/require-release-tip
+        with:
+          release_branch: mcr/release
+          allow_merge_commits: "true"
+
+      - name: Read release version
+        id: version
         run: |
-          trivalent_rpm_file=$(ls | grep -E '^trivalent-[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.(x86_64|aarch64)\.rpm$')
-          if [[ -z "$trivalent_rpm_file" ]]; then
-            echo "Trivalent RPM not found"
+          set -euo pipefail
+          version="$(python3 scripts/trivalent_version.py get)"
+          if [ -z "${version}" ]; then
+            echo "Failed to read version from VERSION" >&2
             exit 1
-          else
-            echo "Trivalent RPM found: ${trivalent_rpm_file}"
           fi
-          
-          rpm --addsign *.rpm
-          rpm_hash=$(sha256sum "${trivalent_rpm_file}" | base64 -w0)
-          echo "hashes=${rpm_hash}" >> "$GITHUB_OUTPUT"
-          reposync --repo secureblue -y
-          mv *.rpm secureblue/Packages
-          cd secureblue
-          rm -rf repodata
-          createrepo .
-          gpg --detach-sign --local-user 26B4463ED8F313BC7E3FBDF9D9223AF0F47B3E41 --armor repodata/repomd.xml
+          echo "package_version=${version}" >> "${GITHUB_OUTPUT}"
 
-      - name: Upload RPM and logs to R2 to trivalent Bucket
-        shell: bash
-        if: ${{ ! inputs.test_build }}
-        env:
-          RCLONE_CONFIG_R2_TYPE: s3
-          RCLONE_CONFIG_R2_PROVIDER: Cloudflare
-          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          RCLONE_CONFIG_R2_REGION: auto
-          RCLONE_CONFIG_R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
-          SOURCE_DIR: .
+      - name: Read ungoogled-chromium tag
+        id: ugc
         run: |
-          rclone copy ./secureblue/ R2:/ 
+          set -euo pipefail
+          ugc_tag="$(python3 - <<'PY'
+          import re
+          from pathlib import Path
 
-  provenance:
-    needs: [pushrpm]
-    permissions:
-      actions: read # To read the workflow path.
-      id-token: write # To sign the provenance.
-      contents: write # To add assets to a release.
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
-    with:
-      base64-subjects: ${{ needs.pushrpm.outputs.hashes }}
-      upload-assets: true
-  
+          data = Path('debian_build.sh').read_text(encoding='utf-8')
+          match = re.search(r'UGC_TAG=\"\\$\\{UGC_TAG:-([^}]+)\\}\"', data)
+          if not match:
+              raise SystemExit('Unable to read UGC_TAG from debian_build.sh')
+          print(match.group(1).strip())
+          PY
+          )"
+          echo "ugc_tag=${ugc_tag}" >> "${GITHUB_OUTPUT}"
+
+      - name: Validate release tag version
+        if: startsWith(github.ref, 'refs/tags/gl-')
+        uses: ./.github/actions/gh-actions/actions/validate-tag-version
+        with:
+          tag_prefix: gl-trivalent-v
+          expected_version: ${{ steps.version.outputs.package_version }}
+          allow_revision_suffix: "true"
+          tag_regex: '^gl-trivalent-v[0-9]+\.[0-9]+\.[0-9]+(-r[0-9]+)?$'
+
+  build-debian:
+    name: Build Debian tarball (x86_64)
+    runs-on: runs-on=${{ github.run_id }}/runner=x86_64-runner
+    needs: setup
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      UGC_TAG: ${{ needs.setup.outputs.ugc_tag }}
+      CACHE_DIR: ${{ github.workspace }}/.cache
+      WORKDIR: ${{ github.workspace }}/out/debian
+      USE_SYSTEM_TOOLCHAIN: "1"
+      TRIVALENT_MARCH_NATIVE: "0"
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install base toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get update -y
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            ca-certificates \
+            curl \
+            git \
+            python3 \
+            ninja-build \
+            pkg-config \
+            nodejs \
+            clang \
+            lld \
+            rustc \
+            bindgen \
+            rustfmt \
+            libssl-dev
+
+      - name: Resolve Chromium build dependencies
+        run: |
+          set -euo pipefail
+          mkdir -p "${CACHE_DIR}" "${WORKDIR}"
+          tarball="${CACHE_DIR}/ungoogled-chromium-${UGC_TAG}.tar.gz"
+          src_dir="${WORKDIR}/ungoogled-src"
+          if [ ! -f "${tarball}" ]; then
+            curl -fL --retry 3 --retry-delay 2 \
+              --output "${tarball}" \
+              "https://github.com/ungoogled-software/ungoogled-chromium/archive/refs/tags/${UGC_TAG}.tar.gz"
+          fi
+          mkdir -p "${src_dir}"
+          if ! find "${src_dir}" -mindepth 1 -maxdepth 1 -type d | grep -q .; then
+            tar -xf "${tarball}" -C "${src_dir}"
+          fi
+          ugc_repo="$(find "${src_dir}" -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+          if [ -z "${ugc_repo}" ]; then
+            echo "Unable to locate extracted ungoogled-chromium repository." >&2
+            exit 1
+          fi
+          deps_py="${ugc_repo}/build/install-build-deps.py"
+          if [ ! -f "${deps_py}" ]; then
+            echo "Missing ${deps_py}" >&2
+            exit 1
+          fi
+
+          mapfile -t packages < <(python3 - "${deps_py}" <<'PY'
+          import importlib.util
+          import shutil
+          import subprocess
+          import sys
+
+          path = sys.argv[1]
+          spec = importlib.util.spec_from_file_location("deps", path)
+          mod = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+
+          options = mod.parse_args([])
+          packages = mod.package_list(options)
+
+          include = {
+              "libgtk-3-dev",
+              "libpipewire-0.3-dev",
+              "libx11-xcb-dev",
+              "libxkbcommon-dev",
+              "libnss3-dev",
+              "libglib2.0-dev",
+              "libudev-dev",
+          }
+
+          exclude = {
+              "libcups2-dev",
+              "libcups2",
+              "binutils-arm-linux-gnueabihf",
+              "binutils-mipsel-linux-gnu",
+              "binutils-mips64el-linux-gnuabi64",
+              "binutils-aarch64-linux-gnu",
+              "lib32z1",
+              "dbus-x11",
+              "openbox",
+              "xcompmgr",
+              "lighttpd",
+              "xserver-xorg-video-dummy",
+              "xvfb",
+              "rpm",
+              "cdbs",
+              "devscripts",
+          }
+
+          replace_map = {
+              "libasound2": "libasound2t64",
+              "libatk1.0-0": "libatk1.0-0t64",
+              "libatspi2.0-0": "libatspi2.0-0t64",
+              "libbrlapi0.5": "libbrlapi0.8",
+              "libgtk-3-0": "libgtk-3-0t64",
+              "libjpeg62-dev": "libjpeg62-turbo-dev",
+              "libjpeg62": "libjpeg62-turbo",
+              "libncurses5": "libncurses6",
+              "libnspr4-0d": "libnspr4",
+              "libnss3-1d": "libnss3",
+              "libpng12-0": "libpng16-16",
+          }
+
+          def candidate_exists(pkg):
+              result = subprocess.run(
+                  ["apt-cache", "policy", pkg],
+                  check=False,
+                  stdout=subprocess.PIPE,
+                  stderr=subprocess.DEVNULL,
+                  text=True,
+              )
+              for line in result.stdout.splitlines():
+                  if line.strip().startswith("Candidate:"):
+                      return "(none)" not in line
+              return False
+
+          resolved = []
+          for pkg in packages:
+              if pkg in exclude:
+                  continue
+              mapped = replace_map.get(pkg, pkg)
+              if mapped != pkg and candidate_exists(mapped):
+                  resolved.append(mapped)
+                  continue
+              if candidate_exists(pkg):
+                  resolved.append(pkg)
+                  continue
+          packages = resolved
+          for pkg in include:
+              if pkg in packages:
+                  continue
+              if candidate_exists(pkg):
+                  packages.append(pkg)
+
+          if shutil.which("git"):
+              exclude.add("git-core")
+          for pkg in sorted(set(packages)):
+              print(pkg)
+          PY
+          )
+
+          if [ "${#packages[@]}" -gt 0 ]; then
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
+          fi
+
+      - name: Build Debian binaries
+        run: |
+          set -euo pipefail
+          ./debian_build.sh
+
+      - name: Package Debian install tree
+        run: |
+          set -euo pipefail
+          install_dir="${WORKDIR}/install"
+          if [ ! -d "${install_dir}" ]; then
+            echo "Missing install tree at ${install_dir}" >&2
+            exit 1
+          fi
+          tarball="trivalent-debian-x86_64-${PACKAGE_VERSION}.tar.gz"
+          tar --sort=name --owner=0 --group=0 --numeric-owner \
+            -czf "${tarball}" -C "${install_dir}" .
+          sha256sum "${tarball}" > "trivalent-sha256-checksums-${PACKAGE_VERSION}.txt"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: trivalent-debian-${{ env.PACKAGE_VERSION }}
+          path: |
+            trivalent-debian-x86_64-${{ env.PACKAGE_VERSION }}.tar.gz
+            trivalent-sha256-checksums-${{ env.PACKAGE_VERSION }}.txt
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,42 @@
+workflow:
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+    - when: never
+
+stages:
+  - verify
+  - test
+  - github-sync
+
+include:
+  - project: '${GL_CICD_SHARED_PROJ}'
+    ref: main
+    file: '/github/validate.yml'
+  - project: '${GL_CICD_SHARED_PROJ}'
+    ref: main
+    file: '/github/push.yml'
+
+variables:
+  RELEASE_VERSION: '144.0.7559'
+  VERSION_BUMP_SCRIPT: 'scripts/bump_version.py'
+  VERSION_BUMP_ARGS: '--version'
+  GH_REPO_PRIVATE: 'false'
+  GH_FORCE_PUSH: 'true'
+
+.debian_test_rules: &debian_test_rules
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH == "mcr/staging"'
+      when: on_success
+    - when: never
+
+debian_ci_verify:
+  <<: *debian_test_rules
+  stage: test
+  image:
+    name: '${GL_CICD_RUNNER_UBUNTU}'
+  interruptible: true
+  timeout: 20m
+  script:
+    - set -euo pipefail
+    - bash scripts/ci_verify.sh

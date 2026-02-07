@@ -10,14 +10,18 @@ Unless required by applicable law or agreed to in writing, software distributed 
 distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 ---
---- a/chrome/common/url_constants.h
-+++ b/chrome/common/url_constants.h
-@@ -135,7 +135,7 @@
- #endif  // BUILDFLAG(IS_CHROMEOS)
+--- a/build/rust/std/BUILD.gn
++++ b/build/rust/std/BUILD.gn
+@@ -55,11 +55,7 @@ if (toolchain_has_rust) {
+       "miniz_oxide",
+       "object",
+     ]
+-    if (rustc_nightly_capability) {
+-      stdlib_files += [ "adler2" ]
+-    } else {
+-      stdlib_files += [ "adler" ]
+-    }
++    stdlib_files += [ "adler2" ]
+   }
  
- inline constexpr char kChromeHelpViaWebUIURL[] =
--    "https://support.9oo91e.qjz9zk/chrome?p=help&ctx=settings";
-+    "https://github.com/secureblue/Trivalent/issues";
- #if BUILDFLAG(IS_CHROMEOS)
- inline constexpr char kChromeOsHelpViaWebUIURL[] =
- #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+   if (toolchain_for_rust_host_build_tools) {

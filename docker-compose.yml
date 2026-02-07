@@ -1,0 +1,25 @@
+services:
+  trivalent-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DEBIAN_SUITE: ${DEBIAN_SUITE:-trixie}
+        USERNAME: builder
+        USER_ID: ${UID:-1000}
+        GROUP_ID: ${GID:-1000}
+        UGC_TAG: ${UGC_TAG:-144.0.7559.109-1}
+        RUSTUP_TOOLCHAIN: ${RUSTUP_TOOLCHAIN:-nightly-2025-11-07}
+        LLVM_VERSION: ${LLVM_VERSION:-21}
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /workspace
+    environment:
+      USE_SYSTEM_TOOLCHAIN: "1"
+      TRIVALENT_MARCH_NATIVE: "1"
+      UGC_TAG: ${UGC_TAG:-144.0.7559.109-1}
+    volumes:
+      - ./:/workspace
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

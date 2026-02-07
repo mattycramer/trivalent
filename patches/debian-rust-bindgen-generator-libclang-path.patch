@@ -10,14 +10,17 @@ Unless required by applicable law or agreed to in writing, software distributed 
 distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 ---
---- a/chrome/common/url_constants.h
-+++ b/chrome/common/url_constants.h
-@@ -135,7 +135,7 @@
- #endif  // BUILDFLAG(IS_CHROMEOS)
+--- a/build/rust/rust_bindgen_generator.gni
++++ b/build/rust/rust_bindgen_generator.gni
+@@ -26,7 +26,10 @@ if (!use_chromium_rust_toolchain &&
  
- inline constexpr char kChromeHelpViaWebUIURL[] =
--    "https://support.9oo91e.qjz9zk/chrome?p=help&ctx=settings";
-+    "https://github.com/secureblue/Trivalent/issues";
- #if BUILDFLAG(IS_CHROMEOS)
- inline constexpr char kChromeOsHelpViaWebUIURL[] =
- #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+ # On Windows, the libclang.dll is beside the bindgen.exe, otherwise it is in
+ # ../lib.
+-_libclang_path = rust_bindgen_root
++_libclang_path = rust_bindgen_root
++if (host_os == "linux" && defined(clang_base_path) && clang_base_path != "") {
++  _libclang_path = clang_base_path
++}
+ if (!use_chromium_rust_toolchain &&
+     (host_cpu == "ppc64" || host_cpu == "s390x")) {
+   _libclang_path = rust_sysroot_absolute + "/lib64"

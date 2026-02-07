@@ -11,45 +11,47 @@ distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, e
 See the License for the specific language governing permissions and limitations under the License.
 ---
 diff --git a/chrome/browser/ui/ui_features.cc b/chrome/browser/ui/ui_features.cc
-index 6a8be4abd7..36113be58a 100644
+index 99ccc58..18a5028 100644
 --- a/chrome/browser/ui/ui_features.cc
 +++ b/chrome/browser/ui/ui_features.cc
-@@ -17,6 +17,10 @@
+@@ -42,6 +42,12 @@ BASE_FEATURE(kExtensionsCollapseMainMenu, base::FEATURE_DISABLED_BY_DEFAULT);
  
- namespace features {
+ #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
  
-+// Hides the toolbar profile icon in regular profiles
-+BASE_FEATURE(kHideProfileIcon, "HideProfileIcon",
++
++// Hides the toolbar profile icon in regular profiles.
++BASE_FEATURE(kHideProfileIcon,
++             "HideProfileIcon",
 +             base::FEATURE_DISABLED_BY_DEFAULT);
 +
- // Enables the use of WGC for the Eye Dropper screen capture.
- BASE_FEATURE(kAllowEyeDropperWGCScreenCapture,
+ BASE_FEATURE(kInfobarRefresh, base::FEATURE_DISABLED_BY_DEFAULT);
+ 
  #if BUILDFLAG(IS_WIN)
 diff --git a/chrome/browser/ui/ui_features.h b/chrome/browser/ui/ui_features.h
-index d4456c7bf1..adb2bf2ef7 100644
+index d4456c7..ab3f280 100644
 --- a/chrome/browser/ui/ui_features.h
 +++ b/chrome/browser/ui/ui_features.h
-@@ -20,6 +20,8 @@ namespace features {
- // All features in alphabetical order. The features should be documented
- // alongside the definition of their values in the .cc file.
-
+@@ -37,6 +37,8 @@ BASE_DECLARE_FEATURE(kExtensionsCollapseMainMenu);
+ 
+ #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
+ 
 +BASE_DECLARE_FEATURE(kHideProfileIcon);
 +
- BASE_DECLARE_FEATURE(kAllowEyeDropperWGCScreenCapture);
+ // Controls whether the refreshed infobar is enabled.
+ BASE_DECLARE_FEATURE(kInfobarRefresh);
  
- BASE_DECLARE_FEATURE(kCreateNewTabGroupAppMenuTopLevel);
 diff --git a/chrome/browser/ui/views/toolbar/toolbar_view.cc b/chrome/browser/ui/views/toolbar/toolbar_view.cc
-index d1519e7f3782a..548be223ca340 100644
+index 96c5321..f75c1e4 100644
 --- a/chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ b/chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -481,7 +481,9 @@ void ToolbarView::Init() {
+@@ -465,7 +465,9 @@ void ToolbarView::Init() {
    // DevTools profiles are OffTheRecord, so hide it there.
    show_avatar_toolbar_button = browser_->profile()->IsIncognitoProfile() ||
                                 browser_->profile()->IsGuestSession() ||
 -                               browser_->profile()->IsRegularProfile();
 +                               (browser_->profile()->IsRegularProfile() &&
-+                               !base::FeatureList::IsEnabled(
-+                                                   features::kHideProfileIcon));
++                                !base::FeatureList::IsEnabled(
++                                    features::kHideProfileIcon));
  #endif
-   avatar_->SetVisible(show_avatar_toolbar_button);
  
+   const std::string sab_value = base::CommandLine::ForCurrentProcess()->

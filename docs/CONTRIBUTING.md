@@ -35,42 +35,13 @@ We will then take care of the issue as soon as possible.
 > ### Legal Notice <!-- omit in toc -->
 > When contributing to this project, you must agree that you have authored 100% of the content, that you have the necessary rights to the content and that the content you contribute may be provided under the project license.
 
-### Building locally
+### Building locally (Debian x86_64 only)
 
-> [!NOTE]
-> These steps can also be done in a distrobox (or any other container software) if preferred
+This fork is Debian‑only. For a local build using an ungoogled‑chromium source
+tarball, use the helper script and documentation below:
 
-#### Setup
-
-Enable the COPR repository (as root):
-
-`dnf copr enable secureblue/trivalent`
-
-Install the `trivalent-chromium-clean-source` package (as root):
-
-`dnf install trivalent-chromium-clean-source`
-
-> This command can take a while especially on a slow network, the package is over 3 gigabytes
-
-Clone the repository:
-
-`git clone https://github.com/secureblue/trivalent.git`
-
-Then run the COPR script:
-
-`/bin/bash ./trivalent/copr_script.sh`
-
-#### Build RPM
-
-Build the patched chromium source from the spec file:
-
-`rpmbuild -bs -v --define "_sourcedir $PWD" --define "_rpmdir $PWD" --define "_builddir $PWD" --define "_specdir $PWD" --define "_srcrpmdir $PWD" trivalent.spec`
-
-Rebuild the source for your system:
-
-`mock --resultdir=dist -r %{distro}-%{version}-%{arch} --rebuild trivalent-%{version}.%{distro}.src.rpm`
-
-Install the built rpm...
+- `docs/BUILDING_DEBIAN.md`
+- `./debian_build.sh`
 
 ### Pull Requests
 

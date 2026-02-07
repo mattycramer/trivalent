@@ -6,13 +6,12 @@
 
 <h1 align="center">Trivalent</h1>
 
-[![build-x86_64](https://github.com/secureblue/Trivalent/actions/workflows/build_x86_64.yml/badge.svg)](https://github.com/secureblue/Trivalent/actions/workflows/build_x86_64.yml)
-[![build-aarch64](https://github.com/secureblue/Trivalent/actions/workflows/build_aarch64.yml/badge.svg)](https://github.com/secureblue/Trivalent/actions/workflows/build_aarch64.yml)
+[![build-debian](https://github.com/secureblue/Trivalent/actions/workflows/build.yml/badge.svg)](https://github.com/secureblue/Trivalent/actions/workflows/build.yml)
 [![Runners by - runs-on.com](https://img.shields.io/badge/Runners-runs--on.com-blue?style=flat)](https://runs-on.com/)
 [![Egress auditing by - stepsecurity.io](https://img.shields.io/badge/Egress_auditing-stepsecurity.io-7037f5)](https://stepsecurity.io)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/secureblue/Trivalent/badge)](https://scorecard.dev/viewer/?uri=github.com/secureblue/Trivalent)
 
-A security-focused, Chromium-based browser for desktop Linux inspired by [Vanadium](https://github.com/GrapheneOS/Vanadium). Intended for use in [secureblue](https://github.com/secureblue/secureblue).
+A security-focused, Chromium-based browser for desktop Linux inspired by [Vanadium](https://github.com/GrapheneOS/Vanadium). This fork targets Debian x86_64.
 
 ## Scope
 
@@ -30,7 +29,10 @@ A security-focused, Chromium-based browser for desktop Linux inspired by [Vanadi
 
 ## Installation
 
-Official support is only provided via [secureblue](https://github.com/secureblue/secureblue/). Unsupported installation is also possible [via our repo](https://repo.secureblue.dev/secureblue.repo). In addition to being unsupported, use of Trivalent outside of secureblue lacks SELinux confinement unless Fedora's SELinux policy is swapped for secureblue's. "Support" here refers to which systems Trivalent is tested against. It does not mean that it's forbidden to open Github issues regarding Trivalent's use on other systems.
+Upstream support is provided via [secureblue](https://github.com/secureblue/secureblue/). This fork is Debian‑only and is intended for local builds on modern Debian x86_64. Fedora/secureblue packaging is not supported here.
+
+For Debian (x86_64) local builds based on ungoogled-chromium, see
+`docs/BUILDING_DEBIAN.md`.
 
 ## Post-install
 
@@ -48,7 +50,7 @@ Other flags are also provided for compatibility should you experience an issue r
 
 ## Content Blocking
 
-Trivalent comes by default with content filtering enabled using chromium's internal subresource filter. The lists used for content filtering can be found [here](https://github.com/secureblue/trivalent-subresource-filter/blob/live/copr_script.sh#L19).
+Trivalent comes by default with content filtering enabled using chromium's internal subresource filter. The lists used for content filtering can be found in the [trivalent-subresource-filter](https://github.com/secureblue/trivalent-subresource-filter) repository.
 \
 If you want to contribute to the subresource filter, example suggesting a new list, visit [here](https://github.com/secureblue/trivalent-subresource-filter).
 

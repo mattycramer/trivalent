@@ -1,0 +1,56 @@
+Copyright 2024-2025 The Trivalent Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+---
+--- a/third_party/rust/bytemuck/v1/BUILD.gn
++++ b/third_party/rust/bytemuck/v1/BUILD.gn
+@@ -48,11 +48,8 @@
+     "bytemuck_derive",
+     "derive",
+     "min_const_generics",
+-    "nightly_portable_simd",
+   ]
+ 
+-  # `gnrt_config.toml` for this crate specifies `allow_unstable_features`.
+-  rustflags = [ "-Zallow-features=portable_simd" ]
+ 
+   #####################################################################
+   # Tweaking which GN `config`s apply to this target.
+@@ -70,8 +67,6 @@
+   ]
+   _configs_to_add = []
+ 
+-  # `gnrt_config.toml` for this crate specifies `allow_unstable_features`.
+-  _configs_to_remove += [ "//build/config/compiler:disallow_unstable_features" ]
+ 
+   # Changing (if needed) which configs apply to this specific crate (based on
+   # `extra_kv.configs_to_remove` and `extra_kv.configs_to_add` from
+--- a/third_party/rust/chromium_crates_io/Cargo.toml
++++ b/third_party/rust/chromium_crates_io/Cargo.toml
+@@ -41,7 +41,6 @@
+ 
+ [dependencies.bytemuck]
+ version = "1"
+-features = ["nightly_portable_simd"]  # For std::simd coverage.
+ 
+ [dependencies.crc32fast]
+ version = "1.4.2"
+--- a/third_party/rust/chromium_crates_io/gnrt_config.toml
++++ b/third_party/rust/chromium_crates_io/gnrt_config.toml
+@@ -123,8 +123,6 @@
+ 
+ [crate.bytemuck.extra_kv]
+ allow_unsafe = true
+-# This allows using `std::simd` helpers, which are needed by first-party code.
+-allow_unstable_features = ["portable_simd"]
+ 
+ [crate.bytemuck_derive.extra_kv]
+ allow_unsafe = false

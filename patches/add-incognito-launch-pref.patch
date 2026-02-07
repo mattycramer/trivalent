@@ -1,0 +1,53 @@
+Copyright 2024-2025 The Trivalent Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+---
+diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
+index 3c4adfd..ab62659 100644
+--- a/chrome/common/pref_names.h
++++ b/chrome/common/pref_names.h
+@@ -28,6 +28,10 @@ namespace prefs {
+ // *************** PROFILE PREFS ***************
+ // These are attached to the user profile
+ 
++
++// Launch sessions and open external links in Incognito.
++inline constexpr char kIncognitoLaunch[] = "incognito.launch_mode";
++
+ // A string property indicating whether default apps should be installed
+ // in this profile.  Use the value "install" to enable defaults apps, or
+ // "noinstall" to disable them.  This property is usually set in the
+diff --git a/chrome/browser/profiles/profile.cc b/chrome/browser/profiles/profile.cc
+index d64a611..fc14ba8 100644
+--- a/chrome/browser/profiles/profile.cc
++++ b/chrome/browser/profiles/profile.cc
+@@ -326,6 +326,7 @@ const char Profile::kProfileKey[] = "__PROFILE__";
+ 
+ // static
+ void Profile::RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
++  registry->RegisterBooleanPref(prefs::kIncognitoLaunch, false);
+   registry->RegisterBooleanPref(
+       prefs::kSearchSuggestEnabled,
+       false,
+diff --git a/chrome/browser/prefs/incognito_mode_prefs.cc b/chrome/browser/prefs/incognito_mode_prefs.cc
+index 1760e5e..3bf8855 100644
+--- a/chrome/browser/prefs/incognito_mode_prefs.cc
++++ b/chrome/browser/prefs/incognito_mode_prefs.cc
+@@ -157,6 +157,9 @@ bool IncognitoModePrefs::ShouldLaunchIncognitoInternal(
+   }
+   bool should_use_incognito =
+       forced_by_switch ||
++      (prefs->GetBoolean(prefs::kIncognitoLaunch) && !for_subsequent_browsers &&
++       !command_line.HasSwitch(switches::kAppId) &&
++       !command_line.HasSwitch(switches::kApp)) ||
+       GetAvailabilityInternal(prefs, DONT_CHECK_PARENTAL_CONTROLS) ==
+           IncognitoModeAvailability::kForced;
+   return should_use_incognito &&

@@ -10,14 +10,14 @@ Unless required by applicable law or agreed to in writing, software distributed 
 distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 ---
---- a/chrome/common/url_constants.h
-+++ b/chrome/common/url_constants.h
-@@ -135,7 +135,7 @@
- #endif  // BUILDFLAG(IS_CHROMEOS)
- 
- inline constexpr char kChromeHelpViaWebUIURL[] =
--    "https://support.9oo91e.qjz9zk/chrome?p=help&ctx=settings";
-+    "https://github.com/secureblue/Trivalent/issues";
- #if BUILDFLAG(IS_CHROMEOS)
- inline constexpr char kChromeOsHelpViaWebUIURL[] =
- #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+diff --git a/content/public/browser/BUILD.gn b/content/public/browser/BUILD.gn
+index 0000000000..0000000000 100644
+--- a/content/public/browser/BUILD.gn
++++ b/content/public/browser/BUILD.gn
+@@ -615,5 +615,6 @@ source_set("browser_sources") {
+     "//services/metrics/public/cpp:metrics_cpp",
+     "//third_party/blink/public/common:buildflags",
+     "//third_party/blink/public/common:headers",
++    "//third_party/re2",
+     "//ui/accessibility",
+     "//ui/base",

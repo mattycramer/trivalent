@@ -1,4 +1,5 @@
 %define _lto_cflags %{nil}
+# NOTE: This fork targets Debian only. RPM/COPR packaging is not supported here.
 %global _default_patch_fuzz 2
 %global numjobs %{_smp_build_ncpus}
 
@@ -684,4 +685,3 @@ fi
 %{chromium_path}/chrome_200_percent.pak
 %dir %{chromium_path}/locales/
 %{chromium_path}/locales/*.pak
-

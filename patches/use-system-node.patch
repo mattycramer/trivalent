@@ -1,0 +1,33 @@
+Copyright 2024-2025 The Trivalent Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+---
+diff --git a/third_party/node/check_version.py b/third_party/node/check_version.py
+index 0000000000..0000000000 100755
+--- a/third_party/node/check_version.py
++++ b/third_party/node/check_version.py
+@@ -15,9 +15,16 @@ def main(argv):
+   parser = argparse.ArgumentParser()
+   parser.add_argument('--expected_version_file', required=True)
+   parser.add_argument('--out_file', required=True)
+   args = parser.parse_args(argv)
+ 
++  if os.environ.get("CHROMIUM_USE_SYSTEM_NODE") == "1":
++    # Debian builds rely on the system Node.js; skip strict version pinning.
++    # Ninja requires the declared output to exist, so write it and return.
++    with open(args.out_file, "w") as file:
++      file.write("OK")
++    return 0
++
+   node.RunNode([
+       os.path.join(_HERE_PATH, 'check_version.js'),
+       '--expected_version_file', args.expected_version_file,
+   ])

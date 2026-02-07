@@ -14,6 +14,9 @@
 
 set -oue pipefail
 
+echo "This fork is Debian-only; COPR/Fedora build is not supported."
+exit 1
+
 wget https://versionhistory.googleapis.com/v1/chrome/platforms/linux/channels/stable/versions/all/releases?filter=endtime=none -O chromium-version.json
 grep \"version\" chromium-version.json | grep -oh "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" > chromium-version.txt
 
