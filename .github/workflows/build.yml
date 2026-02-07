@@ -93,6 +93,7 @@ jobs:
       WORKDIR: ${{ github.workspace }}/out/debian
       USE_SYSTEM_TOOLCHAIN: "1"
       TRIVALENT_MARCH_NATIVE: "0"
+      RUSTUP_TOOLCHAIN: "nightly-2025-01-15"
     steps:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -116,7 +117,23 @@ jobs:
             bindgen \
             libssl-dev
 
-          llvm_version="21"
+          if ! command -v rustup >/dev/null 2>&1; then
+            curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain "${RUSTUP_TOOLCHAIN}"
+          fi
+          source "${HOME}/.cargo/env"
+          rustup toolchain install "${RUSTUP_TOOLCHAIN}"
+          rustup default "${RUSTUP_TOOLCHAIN}"
+          rustup component add rustfmt --toolchain "${RUSTUP_TOOLCHAIN}"
+
+          llvm_version="$(rustc -vV | sed -n 's/^LLVM version: //p' | cut -d. -f1)"
+          if [ -z "${llvm_version}" ]; then
+            echo "Unable to detect LLVM version from rustc." >&2
+            exit 1
+          fi
+          if [ "${llvm_version}" -lt 19 ]; then
+            echo "LLVM ${llvm_version} is too old; require >= 19 (newer than clang 18)." >&2
+            exit 1
+          fi
           distro_codename="$(lsb_release -cs)"
           curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | \
             sudo gpg --dearmor -o /usr/share/keyrings/llvm.gpg
