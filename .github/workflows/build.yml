@@ -93,7 +93,8 @@ jobs:
       WORKDIR: ${{ github.workspace }}/out/debian
       USE_SYSTEM_TOOLCHAIN: "1"
       TRIVALENT_MARCH_NATIVE: "0"
-      RUSTUP_TOOLCHAIN: "nightly-2026-01-31"
+      RUSTUP_TOOLCHAIN_MONTH: "2026-01"
+      BINDGEN_VERSION: "0.69.5"
     steps:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -114,16 +115,32 @@ jobs:
             ninja-build \
             pkg-config \
             nodejs \
-            bindgen \
             libssl-dev
 
           if ! command -v rustup >/dev/null 2>&1; then
-            curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain "${RUSTUP_TOOLCHAIN}"
+            curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal
           fi
           source "${HOME}/.cargo/env"
-          rustup toolchain install "${RUSTUP_TOOLCHAIN}"
-          rustup default "${RUSTUP_TOOLCHAIN}"
-          rustup component add rustfmt --toolchain "${RUSTUP_TOOLCHAIN}"
+          echo "${HOME}/.cargo/bin" >> "${GITHUB_PATH}"
+
+          toolchain=""
+          for day in $(seq 31 -1 1); do
+            day_str="$(printf '%02d' "${day}")"
+            candidate="nightly-${RUSTUP_TOOLCHAIN_MONTH}-${day_str}"
+            if rustup toolchain install "${candidate}"; then
+              toolchain="${candidate}"
+              break
+            fi
+          done
+          if [ -z "${toolchain}" ]; then
+            echo "No nightly toolchain found for ${RUSTUP_TOOLCHAIN_MONTH}." >&2
+            exit 1
+          fi
+          rustup default "${toolchain}"
+          rustup component add rustfmt --toolchain "${toolchain}"
+          echo "RUSTUP_TOOLCHAIN=${toolchain}" >> "${GITHUB_ENV}"
+
+          cargo install --locked --version "${BINDGEN_VERSION}" bindgen-cli
 
           llvm_version="$(rustc -vV | sed -n 's/^LLVM version: //p' | cut -d. -f1)"
           if [ -z "${llvm_version}" ]; then
