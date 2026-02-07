@@ -147,7 +147,17 @@ jobs:
             echo "Unable to locate extracted ungoogled-chromium repository." >&2
             exit 1
           fi
-          deps_py="${ugc_repo}/build/install-build-deps.py"
+          download_cache="${WORKDIR}/uc_build/download_cache"
+          chromium_src="${WORKDIR}/uc_build/src"
+          mkdir -p "${download_cache}"
+          python3 "${ugc_repo}/utils/downloads.py" retrieve \
+            -c "${download_cache}" \
+            -i "${ugc_repo}/downloads.ini"
+          rm -rf "${chromium_src}"
+          python3 "${ugc_repo}/utils/downloads.py" unpack \
+            -c "${download_cache}" \
+            -i "${ugc_repo}/downloads.ini" -- "${chromium_src}"
+          deps_py="${chromium_src}/build/install-build-deps.py"
           if [ ! -f "${deps_py}" ]; then
             echo "Missing ${deps_py}" >&2
             exit 1
