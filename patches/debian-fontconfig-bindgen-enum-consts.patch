@@ -1,0 +1,15 @@
+diff --git a/third_party/fontconfig/BUILD.gn b/third_party/fontconfig/BUILD.gn
+index 58e3e4e802e..7b9c5f9f9b4 100644
+--- a/third_party/fontconfig/BUILD.gn
++++ b/third_party/fontconfig/BUILD.gn
+@@ -27,10 +27,11 @@ if (use_bundled_fontconfig) {
+   rust_bindgen("fcint_h_bindgen") {
+     header = "src/src/fcint.h"
+ 
+     bindgen_flags = [
+       "merge-extern-blocks",
+       "allowlist-item=(FcPattern.*|FcRange.*|FcCharSet.*|FcLangSetFromCharSet|FC_.*_OBJECT)",
++      "default-enum-style=consts",
+       "blocklist-type=(FcCharSet|FcLangSet)",
+       "raw-line=pub use fontconfig_bindings::FcCharSet; pub use fontconfig_bindings::FcLangSet;",
+     ]
