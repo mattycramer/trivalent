@@ -1,0 +1,40 @@
+--- a/ui/webui/resources/tools/webui_eslint_plugin.js
++++ b/ui/webui/resources/tools/webui_eslint_plugin.js
+@@ -23,6 +23,19 @@
+ const LIT_IMPORT_REGEX =
+     ['resources', 'lit', 'v3_0', 'lit.rollup.js$'].join('\\u002F');
+ 
++function setIntersection(a, b) {
++  if (typeof a.intersection === 'function') {
++    return a.intersection(b);
++  }
++  const result = new Set();
++  for (const value of a) {
++    if (b.has(value)) {
++      result.add(value);
++    }
++  }
++  return result;
++}
++
+ const litPropertyAccessorRule = ESLintUtils.RuleCreator.withoutDocs({
+   name: 'lit-property-accessor',
+   meta: {
+@@ -368,7 +381,7 @@
+         for (const tagName of tagNames) {
+           const expectedImportedFilenames = getExpectedImportFilenames(tagName);
+ 
+-          if (importedFilenames.intersection(expectedImportedFilenames).size >
++          if (setIntersection(importedFilenames, expectedImportedFilenames).size >
+               0) {
+             continue;
+           }
+@@ -386,7 +399,7 @@
+           }
+ 
+           if (lazyImportedFileNames !== null &&
+-              lazyImportedFileNames.intersection(expectedImportedFilenames)
++              setIntersection(lazyImportedFileNames, expectedImportedFilenames)
+                       .size > 0) {
+             // Handle case where the dependency is imported lazily (meaning in
+             // lazy_load.ts).
