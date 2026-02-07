@@ -28,24 +28,15 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Checkout shared actions
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          repository: ${{ vars.GH_ACTIONS_SHARED_PROJ }}
-          ref: ${{ vars.GH_ACTIONS_SHARED_REF }}
-          path: .github/actions/gh-actions
-          fetch-depth: 1
-          persist-credentials: false
-
       - name: Require gl-* tag
         if: startsWith(github.ref, 'refs/tags/gl-')
-        uses: ./.github/actions/gh-actions/actions/require-gl-tag
+        uses: mattycramer/gh-actions/actions/require-gl-tag@1bdb6c9cf5bd4508d2048a344ef617e190262bde
         with:
           tag_prefix: gl-
 
       - name: Ensure tag is on mcr/release
         if: startsWith(github.ref, 'refs/tags/gl-')
-        uses: ./.github/actions/gh-actions/actions/require-release-tip
+        uses: mattycramer/gh-actions/actions/require-release-tip@1bdb6c9cf5bd4508d2048a344ef617e190262bde
         with:
           release_branch: mcr/release
           allow_merge_commits: "true"
@@ -84,7 +75,7 @@ jobs:
 
       - name: Validate release tag version
         if: startsWith(github.ref, 'refs/tags/gl-')
-        uses: ./.github/actions/gh-actions/actions/validate-tag-version
+        uses: mattycramer/gh-actions/actions/validate-tag-version@1bdb6c9cf5bd4508d2048a344ef617e190262bde
         with:
           tag_prefix: gl-trivalent-v
           expected_version: ${{ steps.version.outputs.package_version }}
