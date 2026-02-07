@@ -69,10 +69,14 @@ jobs:
           import re
           from pathlib import Path
 
-          data = Path('debian_build.sh').read_text(encoding='utf-8')
-          match = re.search(r'UGC_TAG=\"\\$\\{UGC_TAG:-([^}]+)\\}\"', data)
+          data = Path("debian_build.sh").read_text(encoding="utf-8")
+          match = re.search(
+              r'^\s*readonly\s+UGC_TAG="\$\{UGC_TAG:-([^}]+)\}"',
+              data,
+              re.M,
+          )
           if not match:
-              raise SystemExit('Unable to read UGC_TAG from debian_build.sh')
+              raise SystemExit("Unable to read UGC_TAG from debian_build.sh")
           print(match.group(1).strip())
           PY
           )"
