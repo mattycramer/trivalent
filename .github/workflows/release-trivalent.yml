@@ -15,7 +15,7 @@ jobs:
     if: |
       github.event.workflow_run.conclusion == 'success' &&
       startsWith(github.event.workflow_run.head_branch, 'gl-trivalent-v')
-    uses: mattycramer/gh-actions/.github/workflows/release-from-workflow-run.yml@9f4bf728ce08f7fb27af4055e9522ff0482b03be
+    uses: mattycramer/gh-actions/.github/workflows/release-from-workflow-run.yml@abcb12137e26fac12c3ed60252327a1f96a7b601
     with:
       tag: ${{ github.event.workflow_run.head_branch }}
       tag_prefix: gl-trivalent-v
