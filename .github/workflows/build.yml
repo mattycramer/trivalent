@@ -93,7 +93,7 @@ jobs:
       WORKDIR: ${{ github.workspace }}/out/debian
       USE_SYSTEM_TOOLCHAIN: "1"
       TRIVALENT_MARCH_NATIVE: "0"
-      RUSTUP_TOOLCHAIN: "nightly-2025-01-15"
+      RUSTUP_TOOLCHAIN: "nightly-2026-01-31"
     steps:
       - name: Checkout repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
