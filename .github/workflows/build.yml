@@ -93,7 +93,7 @@ jobs:
 
   build-debian:
     name: Build Debian tarball (x86_64)
-    runs-on: runs-on=${{ github.run_id }}/runner=x86_64-runner
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
