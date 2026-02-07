@@ -30,13 +30,13 @@ jobs:
 
       - name: Require gl-* tag
         if: startsWith(github.ref, 'refs/tags/gl-')
-        uses: mattycramer/gh-actions/actions/require-gl-tag@1bdb6c9cf5bd4508d2048a344ef617e190262bde
+        uses: mattycramer/gh-actions/actions/require-gl-tag@24fa0b1b9c20445eb84e314dde824752572595c0
         with:
           tag_prefix: gl-
 
       - name: Ensure tag is on mcr/release
         if: startsWith(github.ref, 'refs/tags/gl-')
-        uses: mattycramer/gh-actions/actions/require-release-tip@1bdb6c9cf5bd4508d2048a344ef617e190262bde
+        uses: mattycramer/gh-actions/actions/require-release-tip@24fa0b1b9c20445eb84e314dde824752572595c0
         with:
           release_branch: mcr/release
           allow_merge_commits: "true"
@@ -75,7 +75,7 @@ jobs:
 
       - name: Validate release tag version
         if: startsWith(github.ref, 'refs/tags/gl-')
-        uses: mattycramer/gh-actions/actions/validate-tag-version@1bdb6c9cf5bd4508d2048a344ef617e190262bde
+        uses: mattycramer/gh-actions/actions/validate-tag-version@24fa0b1b9c20445eb84e314dde824752572595c0
         with:
           tag_prefix: gl-trivalent-v
           expected_version: ${{ steps.version.outputs.package_version }}
@@ -127,7 +127,15 @@ jobs:
             "clang-${llvm_version}" \
             "lld-${llvm_version}" \
             "llvm-${llvm_version}" \
-            "libclang-${llvm_version}-dev"
+            "libclang-${llvm_version}-dev" \
+            "libclang-rt-${llvm_version}-dev"
+
+          sudo update-alternatives --install /usr/bin/clang clang "/usr/bin/clang-${llvm_version}" 100
+          sudo update-alternatives --install /usr/bin/clang++ clang++ "/usr/bin/clang++-${llvm_version}" 100
+          sudo update-alternatives --install /usr/bin/lld lld "/usr/bin/lld-${llvm_version}" 100
+          sudo update-alternatives --install /usr/bin/llvm-ar llvm-ar "/usr/bin/llvm-ar-${llvm_version}" 100
+          sudo update-alternatives --install /usr/bin/llvm-nm llvm-nm "/usr/bin/llvm-nm-${llvm_version}" 100
+          sudo update-alternatives --install /usr/bin/llvm-ranlib llvm-ranlib "/usr/bin/llvm-ranlib-${llvm_version}" 100
 
           if command -v rustup >/dev/null 2>&1; then
             rustup update stable
