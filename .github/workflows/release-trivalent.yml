@@ -1,0 +1,28 @@
+name: Release Trivalent
+
+on:
+  workflow_run:
+    workflows: ["build-debian"]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  release:
+    name: Create GitHub release (Debian x86_64)
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'gl-trivalent-v')
+    uses: mattycramer/gh-actions/.github/workflows/release-from-workflow-run.yml@db2082469c96b5df57e882f64177814bea6602b6
+    with:
+      tag: ${{ github.event.workflow_run.head_branch }}
+      tag_prefix: gl-trivalent-v
+      allow_revision_suffix: true
+      run_id: ${{ github.event.workflow_run.id }}
+      artifact_prefix: trivalent-debian-
+      tarball_prefix: trivalent-debian-x86_64-
+      checksum_prefix: trivalent-sha256-checksums-
+      release_name: Trivalent v{version}
+    secrets: inherit
