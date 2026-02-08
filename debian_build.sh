@@ -595,7 +595,8 @@ detect_libdir() {
   echo "/usr/lib"
 }
 
-readonly SYSTEM_LIBDIR="$(detect_libdir)"
+SYSTEM_LIBDIR="$(detect_libdir)"
+readonly SYSTEM_LIBDIR
 
 QT_MOC_PATH=""
 if [ -x "/usr/lib/qt6/libexec/moc" ]; then

@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "gl-trivalent-v*"
-  workflow_dispatch:
 
 permissions:
   contents: read
