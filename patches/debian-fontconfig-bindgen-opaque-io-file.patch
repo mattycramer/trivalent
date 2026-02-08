@@ -10,12 +10,13 @@ Unless required by applicable law or agreed to in writing, software distributed 
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 ---
+diff --git a/third_party/fontconfig/BUILD.gn b/third_party/fontconfig/BUILD.gn
+index 7b9c5f9f9b4..0f98f42a4f5 100644
 --- a/third_party/fontconfig/BUILD.gn
 +++ b/third_party/fontconfig/BUILD.gn
-@@ -31,7 +31,9 @@ if (use_bundled_fontconfig) {
-     bindgen_flags = [
-       "merge-extern-blocks",
-       "allowlist-item=(FcPattern.*|FcRange.*|FcCharSet.*|FcLangSetFromCharSet|FC_.*_OBJECT)",
+@@ -32,6 +32,8 @@ if (use_bundled_fontconfig) {
+       "allowlist-item=(FcPattern.*|FcRange.*|FcCharSet.*|FcLangSetFromCharSet)",
+       "allowlist-var=FC_.*_OBJECT",
        "default-enum-style=consts",
        "blocklist-type=(FcCharSet|FcLangSet)",
 +      "opaque-type=_IO_FILE",

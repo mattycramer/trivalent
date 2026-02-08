@@ -14,10 +14,15 @@ defaults:
   run:
     shell: bash
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
     outputs:
       package_version: ${{ steps.version.outputs.package_version }}
       ugc_tag: ${{ steps.ugc.outputs.ugc_tag }}
@@ -84,7 +89,8 @@ jobs:
 
   build-debian:
     name: Build Debian tarball (x86_64)
-    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
